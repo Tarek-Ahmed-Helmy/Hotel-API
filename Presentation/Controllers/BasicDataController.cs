@@ -79,7 +79,7 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllCompanies")]
     public async Task<IActionResult> GetAllCompanies(string lang)
     {
-        var companies = await _unitOfWork.Company.FindAllAsync(includes: ["Country", "Hotels"]);
+        var companies = await _unitOfWork.Company.FindAllAsync(includes: ["Country"]);
         if (companies == null || !companies.Any()) return NotFound(lang == "EN" ? "No companies found." : "لم يتم ايجاد شركات");
         var companyDtos = companies.Select(c => new CompanyDto
         {
@@ -87,12 +87,7 @@ public class BasicDataController : ControllerBase
             Name = c.Name,
             CountryName = c.Country?.Name ?? "N/A",
             CreatedAt = c.CreatedAt,
-            UpdatedAt = c.UpdatedAt,
-            Hotels = c.Hotels?.Select(h => new HotelDto
-            {
-                Id = h.Id,
-                Name = h.Name
-            }).ToList()
+            UpdatedAt = c.UpdatedAt
         }).ToList();
         return Ok(companyDtos);
     }
@@ -171,19 +166,14 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllCountries")]
     public async Task<IActionResult> GetAllCountries(string lang)
     {
-        var countries = await _unitOfWork.Country.FindAllAsync(includes: ["Companies"]);
+        var countries = await _unitOfWork.Country.GetAllAsync();
         if (countries == null || !countries.Any()) return NotFound(lang == "EN" ? "No countries found." : "لم يتم ايجاد دول");
         var countryDtos = countries.Select(c => new CountryDto
         {
             Id = c.Id,
             Name = c.Name,
             CreatedAt = c.CreatedAt,
-            UpdatedAt = c.UpdatedAt,
-            Companies = c.Companies?.Select(c => new CompanyDto
-            {
-                Id = c.Id,
-                Name = c.Name
-            }).ToList()
+            UpdatedAt = c.UpdatedAt
         }).ToList();
         return Ok(countries);
     }
@@ -263,20 +253,14 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllDepartments")]
     public async Task<IActionResult> GetAllDepartments(string lang)
     {
-        var departments = await _unitOfWork.Department.FindAllAsync(includes: ["Users"]);
+        var departments = await _unitOfWork.Department.GetAllAsync();
         if (departments == null || !departments.Any()) return NotFound(lang == "EN" ? "No departments found." : "لم يتم ايجاد اقسام");
         var departmentDtos = departments.Select(d => new DepartmentDto
         {
             Id = d.Id,
             Name = d.Name,
             CreatedAt = d.CreatedAt,
-            UpdatedAt = d.UpdatedAt,
-            Users = d.Users?.Select(u => new ApplicationUser
-            {
-                Id = u.Id,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-            }).ToList()
+            UpdatedAt = d.UpdatedAt
         }).ToList();
         return Ok(departments);
     }
@@ -358,7 +342,7 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllHotels")]
     public async Task<IActionResult> GetAllHotels(string lang)
     {
-        var hotels = await _unitOfWork.Hotel.FindAllAsync(includes: ["Company", "Rooms"]);
+        var hotels = await _unitOfWork.Hotel.FindAllAsync(includes: ["Company"]);
         if (hotels == null || !hotels.Any()) return NotFound(lang == "EN" ? "No hotels found." : "لم يتم ايجاد فنادق");
         var hotelDtos = hotels.Select(h => new HotelDto
         {
@@ -366,12 +350,7 @@ public class BasicDataController : ControllerBase
             Name = h.Name,
             CompanyName = h.Company?.Name ?? "N/A",
             CreatedAt = h.CreatedAt,
-            UpdatedAt = h.UpdatedAt,
-            Rooms = h.Rooms?.Select(r => new RoomDto
-            {
-                Id = r.Id,
-                Number = r.Number
-            }).ToList()
+            UpdatedAt = h.UpdatedAt
         }).ToList();
         return Ok(hotelDtos);
     }
@@ -558,7 +537,7 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllRoomTypes")]
     public async Task<IActionResult> GetAllRoomTypes(string lang)
     {
-        var roomTypes = await _unitOfWork.RoomType.FindAllAsync(includes: ["Rooms"]);
+        var roomTypes = await _unitOfWork.RoomType.GetAllAsync();
         if (roomTypes == null || !roomTypes.Any()) return NotFound(lang == "EN" ? "No room types found." : "لم يتم ايجاد انواع غرف");
         var roomTypeDtos = roomTypes.Select(r => new RoomTypeDto
         {
@@ -658,7 +637,7 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllServices")]
     public async Task<IActionResult> GetAllServices(string lang)
     {
-        var services = await _unitOfWork.Service.FindAllAsync(includes: ["SuperService", "RequestDetails"]);
+        var services = await _unitOfWork.Service.FindAllAsync(includes: ["SuperService"]);
         if (services == null || !services.Any()) return NotFound(lang == "EN" ? "No services found." : "لم يتم ايجاد خدمات");
         var serviceDtos = services.Select(s => new ServiceDto
         {
@@ -669,12 +648,7 @@ public class BasicDataController : ControllerBase
             SuperServiceNameAr = s.SuperService?.NameAr ?? "N/A",
             SuperServiceNameEn = s.SuperService?.NameEn ?? "N/A",
             CreatedAt = s.CreatedAt,
-            UpdatedAt = s.UpdatedAt,
-            //RequestDetails = s.RequestDetails?.Select(rd => new RequestDetailsDto
-            //{
-            //    Id = rd.Id,
-            //    RequestHeaderId = rd.RequestHeaderId
-            //}).ToList()
+            UpdatedAt = s.UpdatedAt
         }).ToList();
         return Ok(services);
     }
@@ -756,7 +730,7 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllStatuses")]
     public async Task<IActionResult> GetAllStatuses(string lang)
     {
-        var statuses = await _unitOfWork.Status.FindAllAsync(includes: ["RequestHeaders", "RequestDetails"]);
+        var statuses = await _unitOfWork.Status.FindAllAsync(includes: ["RequestHeaders"]);
         if (statuses == null || !statuses.Any()) return NotFound(lang == "EN" ? "No statuses found." : "لم يتم ايجاد حالات");
         var statusDtos = statuses.Select(s => new StatusDto
         {
@@ -764,12 +738,7 @@ public class BasicDataController : ControllerBase
             NameAr = s.NameAr,
             NameEn = s.NameEn,
             CreatedAt = s.CreatedAt,
-            UpdatedAt = s.UpdatedAt,
-            //RequestHeaders = s.RequestHeaders?.Select(rh => new RequestHeaderDto
-            //{
-            //    Id = rh.Id,
-            //    RequestTypeId = rh.RequestTypeId
-            //}).ToList()
+            UpdatedAt = s.UpdatedAt
         }).ToList();
         return Ok(statusDtos);
     }
@@ -851,20 +820,15 @@ public class BasicDataController : ControllerBase
     [HttpGet("GetAllUseTypes")]
     public async Task<IActionResult> GetAllUseTypes(string lang)
     {
-        var useTypes = await _unitOfWork.UseType.FindAllAsync(includes: ["Rooms"]);
-        if (useTypes == null || !useTypes.Any()) return NotFound(lang == "EN" ? "No use types found." : "لم يتم ايجاد انواع استخدام");
+        var useTypes = await _unitOfWork.UseType.GetAllAsync();
+        if (useTypes == null || !useTypes.Any()) return NotFound(lang == "EN" ? "No use types found." : "لا يوجد انواع استخدام");
         var useTypeDtos = useTypes.Select(u => new UseTypeDto
         {
             Id = u.Id,
             NameAr = u.NameAr,
             NameEn = u.NameEn,
             CreatedAt = u.CreatedAt,
-            UpdatedAt = u.UpdatedAt,
-            Rooms = u.Rooms?.Select(r => new RoomDto
-            {
-                Id = r.Id,
-                Number = r.Number
-            }).ToList()
+            UpdatedAt = u.UpdatedAt
         }).ToList();
         return Ok(useTypes);
     }
