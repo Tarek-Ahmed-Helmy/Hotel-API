@@ -328,6 +328,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Reply")
                         .HasColumnType("nvarchar(max)");
 
@@ -440,6 +443,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("NameEn")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ServiceLevel")
+                        .HasColumnType("int");
 
                     b.Property<int?>("SuperServiceId")
                         .HasColumnType("int");

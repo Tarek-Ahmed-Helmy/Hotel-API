@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250504232145_test")]
-    partial class test
+    [Migration("20250507140835_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -331,6 +331,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Reply")
                         .HasColumnType("nvarchar(max)");
 
@@ -443,6 +446,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("NameEn")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ServiceLevel")
+                        .HasColumnType("int");
 
                     b.Property<int?>("SuperServiceId")
                         .HasColumnType("int");
