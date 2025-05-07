@@ -580,6 +580,7 @@ public class BasicDataController : ControllerBase
         {
             NameAr = service.NameAr,
             NameEn = service.NameEn,
+            ServiceLevel = service.ServiceLevel,
             SuperServiceId = service.SuperServiceId
         };
         await _unitOfWork.Service.AddAsync(newService);
@@ -654,9 +655,9 @@ public class BasicDataController : ControllerBase
     }
 
     [HttpGet("GenerateServices")]
-    public async Task<IActionResult> GenerateServices(string lang)
+    public async Task<IActionResult> GenerateServices(string lang, ServiceLevel serviceLevel)
     {
-        var services = await _unitOfWork.Service.GetAllAsync();
+        var services = await _unitOfWork.Service.FindAllAsync(s => s.ServiceLevel == serviceLevel);
         if (services == null || !services.Any()) return NotFound(lang == "EN" ? "No services found." : "لم يتم ايجاد خدمات");
         var serviceDtos = services.Select(s => new SelectServiceDTO
         {
