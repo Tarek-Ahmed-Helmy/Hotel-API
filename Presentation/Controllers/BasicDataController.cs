@@ -563,7 +563,7 @@ public class BasicDataController : ControllerBase
         var roomTypeDtos = roomTypes.Select(r => new SelectRoomTypeDTO
         {
             Id = r.Id,
-            Name = lang == "EN" ? r.NameAr : r.NameEn,
+            Name = lang == "EN" ? r.NameEn : r.NameAr,
         }).ToList();
         return Ok(roomTypeDtos);
     }
@@ -661,7 +661,7 @@ public class BasicDataController : ControllerBase
         var serviceDtos = services.Select(s => new SelectServiceDTO
         {
             Id = s.Id,
-            Name = lang == "EN" ? s.NameAr : s.NameEn
+            Name = lang == "EN" ? s.NameEn : s.NameAr
         }).ToList();
         return Ok(serviceDtos);
     }
@@ -751,7 +751,7 @@ public class BasicDataController : ControllerBase
         var statusDtos = statuses.Select(s => new SelectStatusDTO
         {
             Id = s.Id,
-            Name = lang == "EN" ? s.NameAr : s.NameEn
+            Name = lang == "EN" ? s.NameEn : s.NameAr
         }).ToList();
         return Ok(statusDtos);
     }
@@ -841,7 +841,7 @@ public class BasicDataController : ControllerBase
         var useTypeDtos = useTypes.Select(u => new SelectUseTypeDTO
         {
             Id = u.Id,
-            Name = lang == "EN" ? u.NameAr : u.NameEn
+            Name = lang == "EN" ? u.NameEn : u.NameAr
         }).ToList();
         return Ok(useTypeDtos);
     }

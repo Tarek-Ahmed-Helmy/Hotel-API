@@ -1,10 +1,14 @@
+using Domain.Interfaces;
+using Domain.Models;
 using Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
+using Utilities;
 
 namespace Presentation;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +33,13 @@ public class Program
 
 
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            var unitOfWork = services.GetRequiredService<IUnitOfWork>();
+            await BasicDataSeeder.SeedBasicDataAsync(unitOfWork);
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
