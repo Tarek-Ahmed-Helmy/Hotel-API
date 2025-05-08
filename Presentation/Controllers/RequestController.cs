@@ -104,6 +104,10 @@ public class RequestController : ControllerBase
         {
             return NotFound(lang == "EN" ? "Request not found" : "هذا الطلب غير موجود");
         }
+        if (existingRequest.Review != null)
+        {
+            return BadRequest(lang == "EN" ? "Review already exists." : "المراجعة موجودة بالفعل");
+        }
         existingRequest.Review = review;
         await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
         await _unitOfWork.SaveChangesAsync();

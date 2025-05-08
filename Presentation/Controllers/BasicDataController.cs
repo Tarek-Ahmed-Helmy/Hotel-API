@@ -652,8 +652,8 @@ public class BasicDataController : ControllerBase
         return Ok(services);
     }
 
-    [HttpGet("GenerateServices")]
-    public async Task<IActionResult> GenerateServices(string lang, [FromQuery] ServiceLevel serviceLevel)
+    [HttpGet("GenerateLevelServices")]
+    public async Task<IActionResult> GenerateLevelServices(string lang, [FromQuery] ServiceLevel serviceLevel)
     {
         var services = await _unitOfWork.Service.FindAllAsync(s => s.ServiceLevel == serviceLevel);
         if (services == null || !services.Any()) return NotFound(lang == "EN" ? "No services found." : "لم يتم ايجاد خدمات");
@@ -664,6 +664,61 @@ public class BasicDataController : ControllerBase
         }).ToList();
         return Ok(serviceDtos);
     }
+
+    [HttpGet("GenerateServices")]
+    public async Task<IActionResult> GenerateServices(string lang)
+    {
+        // Get all level 2 services and include their parent and children
+        var level2Services = await _unitOfWork.Service.FindAllAsync(
+            s => s.ServiceLevel == ServiceLevel.SubService,
+            includes: new[] { "SuperService", "SubServices" }
+        );
+
+        if (level2Services == null || !level2Services.Any())
+            return NotFound(lang == "EN" ? "No services found." : "لم يتم ايجاد خدمات");
+
+        // Group by level 1 parent
+        var grouped = new Dictionary<int, SelectServiceDTO>();
+
+        foreach (var level2 in level2Services)
+        {
+            var parent = level2.SuperService;
+            var childs = level2.SubServices;
+            if (parent == null) continue;
+            if (childs == null || !childs.Any()) continue;
+
+            // Ensure the level 1 parent exists in the dictionary
+            if (!grouped.ContainsKey(parent.Id))
+            {
+                grouped[parent.Id] = new SelectServiceDTO
+                {
+                    Id = parent.Id,
+                    Name = lang == "EN" ? parent.NameEn : parent.NameAr,
+                    SubServices = new List<SelectServiceDTO>()
+                };
+            }
+
+            // Build level 2 service DTO
+            var level2Dto = new SelectServiceDTO
+            {
+                Id = level2.Id,
+                Name = lang == "EN" ? level2.NameEn : level2.NameAr,
+                SubServices = childs
+                    .Select(child => new SelectServiceDTO
+                    {
+                        Id = child.Id,
+                        Name = lang == "EN" ? child.NameEn : child.NameAr
+                    })
+                    .ToList()
+            };
+
+            grouped[parent.Id].SubServices.Add(level2Dto);
+        }
+
+        return Ok(grouped.Values.ToList());
+    }
+
+
 
     #endregion
 

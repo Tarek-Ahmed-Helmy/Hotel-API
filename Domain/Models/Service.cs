@@ -1,4 +1,6 @@
-﻿namespace Domain.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Domain.Models;
 
 public class Service
 {
@@ -10,6 +12,8 @@ public class Service
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public Service? SuperService { get; set; }
+    [JsonIgnore]
+    public ICollection<Service>? SubServices { get; set; }
     public ICollection<RequestDetails>? RequestDetails { get; set; }
 }
 
