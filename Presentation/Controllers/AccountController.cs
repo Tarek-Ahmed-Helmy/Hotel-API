@@ -75,8 +75,8 @@ public class AccountController : ControllerBase
             Id = u.Id,
             FirstName = u.FirstName,
             LastName = u.LastName,
-            Email = u.Email,
-            PhoneNumber = u.PhoneNumber
+            Email = u.Email ?? "N/A",
+            PhoneNumber = u.PhoneNumber ?? "N/A"
         }).ToList();
         return Ok(userDtos);
     }

@@ -9,12 +9,10 @@ namespace Presentation.Controllers;
 [ApiController]
 public class BasicDataController : ControllerBase
 {
-    private readonly ILogger<BasicDataController> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public BasicDataController(ILogger<BasicDataController> logger, IUnitOfWork unitOfWork)
+    public BasicDataController(IUnitOfWork unitOfWork)
     {
-        _logger = logger;
         _unitOfWork = unitOfWork;
     }
 
@@ -655,7 +653,7 @@ public class BasicDataController : ControllerBase
     }
 
     [HttpGet("GenerateServices")]
-    public async Task<IActionResult> GenerateServices(string lang, ServiceLevel serviceLevel)
+    public async Task<IActionResult> GenerateServices(string lang, [FromQuery] ServiceLevel serviceLevel)
     {
         var services = await _unitOfWork.Service.FindAllAsync(s => s.ServiceLevel == serviceLevel);
         if (services == null || !services.Any()) return NotFound(lang == "EN" ? "No services found." : "لم يتم ايجاد خدمات");

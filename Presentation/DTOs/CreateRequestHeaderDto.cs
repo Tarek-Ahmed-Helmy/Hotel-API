@@ -10,7 +10,5 @@ public class CreateRequestHeaderDto
     public int HotelId { get; set; }
     public int RoomId { get; set; }
     public string? Note { get; set; }
-    public string? Reply { get; set; }
-    public string? Review { get; set; }
     public ICollection<CreateRequestDetailsDto>? RequestDetails { get; set; }
 }
