@@ -92,14 +92,14 @@ public class RequestController : ControllerBase
         return Ok(requestDetails);
     }
 
-    [HttpPut("AddReviewToRequest{id}")]
-    public async Task<IActionResult> AddReviewToRequest(string lang, int id, [FromBody] string review)
+    [HttpPut("AddReviewToRequest")]
+    public async Task<IActionResult> AddReviewToRequest(string lang, [FromBody] RequestReviewDto review)
     {
         if (review == null)
         {
             return BadRequest(new { message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
         }
-        var existingRequest = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == id);
+        var existingRequest = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == review.Id);
         if (existingRequest == null)
         {
             return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
@@ -108,7 +108,7 @@ public class RequestController : ControllerBase
         {
             return BadRequest(new { message = lang == "EN" ? "Review already exists." : "المراجعة موجودة بالفعل" });
         }
-        existingRequest.Review = review;
+        existingRequest.Review = review.Review;
         await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
         await _unitOfWork.SaveChangesAsync();
         return Ok(new { message = lang == "EN" ? "Review Added Successfully" : "تم إضافة المراجعة بنجاح" });
