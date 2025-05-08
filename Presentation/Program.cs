@@ -31,13 +31,6 @@ public class Program
             });
         });
 
-        //builder.Services.AddControllers().AddJsonOptions(options =>
-        //{
-        //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-        //});
-
-
-
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())

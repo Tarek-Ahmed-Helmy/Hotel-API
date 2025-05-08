@@ -97,16 +97,16 @@ public class RequestController : ControllerBase
     {
         if (review == null)
         {
-            return BadRequest(lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة");
+            return BadRequest(new { message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
         }
         var existingRequest = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == id);
         if (existingRequest == null)
         {
-            return NotFound(lang == "EN" ? "Request not found" : "هذا الطلب غير موجود");
+            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         if (existingRequest.Review != null)
         {
-            return BadRequest(lang == "EN" ? "Review already exists." : "المراجعة موجودة بالفعل");
+            return BadRequest(new { message = lang == "EN" ? "Review already exists." : "المراجعة موجودة بالفعل" });
         }
         existingRequest.Review = review;
         await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
