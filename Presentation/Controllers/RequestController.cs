@@ -111,7 +111,7 @@ public class RequestController : ControllerBase
         existingRequest.Review = review;
         await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
         await _unitOfWork.SaveChangesAsync();
-        return Ok(lang == "EN" ? "Review Added Successfully" : "تم إضافة المراجعة بنجاح");
+        return Ok(new { message = lang == "EN" ? "Review Added Successfully" : "تم إضافة المراجعة بنجاح" });
     }
 
     [HttpGet("GetAllRequests")]

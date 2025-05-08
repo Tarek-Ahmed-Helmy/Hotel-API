@@ -685,7 +685,7 @@ public class BasicDataController : ControllerBase
             var parent = level2.SuperService;
             var childs = level2.SubServices;
             if (parent == null) continue;
-            if (childs == null || !childs.Any()) continue;
+            //if (childs == null || !childs.Any()) continue;
 
             // Ensure the level 1 parent exists in the dictionary
             if (!grouped.ContainsKey(parent.Id))
