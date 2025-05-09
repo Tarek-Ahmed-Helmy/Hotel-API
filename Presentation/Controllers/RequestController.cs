@@ -30,7 +30,11 @@ public class RequestController : ControllerBase
         //{
         //    return BadRequest(ModelState);
         //}
-        var openingStatus = await _unitOfWork.Status.FindAsync(s => s.NameEn == "Opening");
+        var openingStatus = await _unitOfWork.Status.FindAsync(s => s.NameEn == "Open");
+        if (openingStatus == null)
+        {
+            return BadRequest(new { message = lang == "EN" ? "Opening status not found." : "لم يتم العثور على حالة فتح الطلب" });
+        }
         var newRequest = new RequestHeader
         {
             CustName = request.CustName,
@@ -40,41 +44,42 @@ public class RequestController : ControllerBase
             HotelId = request.HotelId,
             RoomId = request.RoomId,
             Note = request.Note,
+            SpecialRequest = request.SpecialRequest,
             StatusId = openingStatus.Id
         };
 
         await _unitOfWork.RequestHeader.AddAsync(newRequest);
         await _unitOfWork.SaveChangesAsync();
 
-        if (request.RequestDetails != null && request.RequestDetails.Any())
+        if (request.ServiceIds != null && request.ServiceIds.Any())
         {
-            foreach (var detail in request.RequestDetails)
+            foreach (var serviceId in request.ServiceIds)
             {
                 var newDetail = new RequestDetails
                 {
                     RequestHeaderId = newRequest.Id,
                     StatusId = openingStatus.Id,
-                    ServiceId = detail.ServiceId,
-                    Note = detail.Note
+                    ServiceId = serviceId
                 };
                 await _unitOfWork.RequestDetails.AddAsync(newDetail);
             }
             await _unitOfWork.SaveChangesAsync();
         }
 
-        //string requestDetailsUrl = $"https://yourfrontenddomain.com/request-details.html?id={newRequest.Id}";
-        //await _emailService.SendAsync(new EmailDto
-        //{
-        //    To = newRequest.CustEmail,
-        //    Subject = lang == "EN" ? "Your Request Has Been Created" : "تم إنشاء طلبك",
-        //    Body = lang == "EN"
-        //        ? $"Thank you for your request. You can view the details here: <a href='{requestDetailsUrl}'>View Request</a>"
-        //        : $"شكراً لطلبك. يمكنك عرض تفاصيل الطلب من هنا: <a href='{requestDetailsUrl}'>عرض الطلب</a>",
-        //    IsHtml = true
-        //});
-
         return Ok(new { message = lang == "EN" ? "Request Created Successfully" : "تم إنشاء الطلب بنجاح" });
     }
+
+
+    //string requestDetailsUrl = $"https://yourfrontenddomain.com/request-details.html?id={newRequest.Id}";
+    //await _emailService.SendAsync(new EmailDto
+    //{
+    //    To = newRequest.CustEmail,
+    //    Subject = lang == "EN" ? "Your Request Has Been Created" : "تم إنشاء طلبك",
+    //    Body = lang == "EN"
+    //        ? $"Thank you for your request. You can view the details here: <a href='{requestDetailsUrl}'>View Request</a>"
+    //        : $"شكراً لطلبك. يمكنك عرض تفاصيل الطلب من هنا: <a href='{requestDetailsUrl}'>عرض الطلب</a>",
+    //    IsHtml = true
+    //});
 
     [HttpGet("GetUserRequestDetails{id}")]
     public async Task<IActionResult> GetUserRequestDetails(string lang, int id)
@@ -90,6 +95,7 @@ public class RequestController : ControllerBase
             CustEmail = request.CustEmail,
             CustPhone = request.CustPhone,
             Reply = request.Reply,
+            SpecialRequest = request.SpecialRequest,
             HotelName = request.Hotel?.Name ?? "N/A",
             RoomNumber = request.Room?.Number ?? "N/A",
             StatusName = lang == "EN" ? request.Status?.NameEn ?? "N/A" : request.Status?.NameAr ?? "غير معرف",

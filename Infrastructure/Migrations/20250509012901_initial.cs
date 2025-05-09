@@ -330,6 +330,7 @@ namespace Infrastructure.Migrations
                     CustPhone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SpecialRequest = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AttachmentPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Reply = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Review = table.Column<string>(type: "nvarchar(max)", nullable: true),

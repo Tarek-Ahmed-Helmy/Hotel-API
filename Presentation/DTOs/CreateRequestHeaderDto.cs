@@ -1,6 +1,4 @@
-﻿using Domain.Models;
-
-namespace Presentation.DTOs;
+﻿namespace Presentation.DTOs;
 
 public class CreateRequestHeaderDto
 {
@@ -10,5 +8,6 @@ public class CreateRequestHeaderDto
     public int HotelId { get; set; }
     public int RoomId { get; set; }
     public string? Note { get; set; }
-    public ICollection<CreateRequestDetailsDto>? RequestDetails { get; set; }
+    public string? SpecialRequest { get; set; }
+    public List<int>? ServiceIds { get; set; } = new List<int>();
 }

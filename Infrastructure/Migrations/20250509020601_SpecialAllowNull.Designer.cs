@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250507140835_initial")]
-    partial class initial
+    [Migration("20250509020601_SpecialAllowNull")]
+    partial class SpecialAllowNull
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -342,6 +342,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SpecialRequest")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
@@ -755,7 +758,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.Service", b =>
                 {
                     b.HasOne("Domain.Models.Service", "SuperService")
-                        .WithMany()
+                        .WithMany("SubServices")
                         .HasForeignKey("SuperServiceId");
 
                     b.Navigation("SuperService");
@@ -852,6 +855,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.Service", b =>
                 {
                     b.Navigation("RequestDetails");
+
+                    b.Navigation("SubServices");
                 });
 
             modelBuilder.Entity("Domain.Models.Status", b =>
