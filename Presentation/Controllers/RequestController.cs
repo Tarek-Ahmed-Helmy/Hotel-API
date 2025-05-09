@@ -170,6 +170,7 @@ public class RequestController : ControllerBase
             CustPhone = request.CustPhone,
             Code = request.Code,
             Note = request.Note,
+            SpecialRequest = request.SpecialRequest,
             AttachmentPath = request.AttachmentPath,
             Reply = request.Reply,
             Review = request.Review,
@@ -188,24 +189,42 @@ public class RequestController : ControllerBase
                 ServiceName = lang == "EN" ? rd.Service?.NameEn ?? "N/A" : rd.Service?.NameAr ?? "غير معرف"
             }).ToList()
         };
-        return Ok(requestDetails);
+        var statusList = (await _unitOfWork.Status.GetAllAsync()).Select(s => new SelectStatusDTO
+        {
+            Id = s.Id,
+            Name = lang == "EN" ? s.NameEn : s.NameAr
+        }).ToList();
+        return Ok(new { requestDetails, statusList });
     }
 
-    [HttpPut("AddReplyToRequest{id}")]
-    public async Task<IActionResult> AddReplyToRequest(string lang, [FromBody] UpdateRequestDto reply)
+    [HttpPut("UpdateRequestStatuses")]
+    public async Task<IActionResult> UpdateRequestStatuses(string lang, [FromBody] UpdateRequestStatusDto model)
     {
-        if (reply == null)
-        {
+        if (model == null)
             return BadRequest(new { message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
-        }
-        var existingRequest = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == reply.Id);
-        if (existingRequest == null)
+
+        var request = await _unitOfWork.RequestHeader.FindAsync(rh => rh.Id == model.RequestId);
+        if (request == null)
         {
             return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
-        existingRequest.Reply = reply.Text;
-        await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
+        request.Reply = model.Response;
+        request.StatusId = model.NewStatusId;
+        await _unitOfWork.RequestHeader.UpdateAsync(request);
+
+        foreach (var update in model.Updates)
+        {
+            var serviceRequest = await _unitOfWork.RequestDetails.FindAsync(rd => rd.RequestHeaderId == model.RequestId && rd.Id == update.ServiceRequestId);
+            if (serviceRequest == null)
+                continue;
+
+            serviceRequest.StatusId = update.NewStatusId;
+            await _unitOfWork.RequestDetails.UpdateAsync(serviceRequest);
+
+        }
+
         await _unitOfWork.SaveChangesAsync();
         return Ok(new { message = lang == "EN" ? "Reply Added Successfully" : "تم إضافة الرد بنجاح" });
     }
+
 }
