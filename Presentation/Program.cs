@@ -31,6 +31,10 @@ public class Program
             });
         });
 
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+        builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+
+
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())

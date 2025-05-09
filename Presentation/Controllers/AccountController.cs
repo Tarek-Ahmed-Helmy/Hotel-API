@@ -39,7 +39,7 @@ public class AccountController : ControllerBase
             return BadRequest(lang == "EN" ? result.Errors : "عطل في الخادم، برجاء المحاولة لاحقاً");
         }
 
-        return Ok(lang == "EN" ? "Registration successful" : "تم انشاء المستخدم بنجاح");
+        return Ok(new { message = lang == "EN" ? "Registration successful" : "تم انشاء المستخدم بنجاح" });
     }
 
     [HttpPost("Login")]
@@ -47,21 +47,21 @@ public class AccountController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
-            return Unauthorized(lang == "EN" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة");
+            return Unauthorized(new { message = lang == "EN" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة" });
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
         if (!result.Succeeded)
-            return Unauthorized(lang == "EN" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة");
+            return Unauthorized(new { message = lang == "EN" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة" });
 
         // TODO: Generate JWT here and return
-        return Ok(lang == "EN" ? "Login successful" : "تم تسجيل الدخول بنجاح");
+        return Ok(new { message = lang == "EN" ? "Login successful" : "تم تسجيل الدخول بنجاح" });
     }
 
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout(string lang)
     {
         await _signInManager.SignOutAsync();
-        return Ok(lang == "EN" ? "Logout successful" : "تم تسجيل الخروج بنجاح");
+        return Ok(new { message = lang == "EN" ? "Logout successful" : "تم تسجيل الخروج بنجاح" });
     }
 
     [HttpGet("GetAllUsers")]
@@ -69,7 +69,7 @@ public class AccountController : ControllerBase
     {
         var users = await _userManager.Users.ToListAsync();
         if (users == null || !users.Any())
-            return NotFound(lang == "EN" ? "No users found" : "لا يوجد مستخدمين");
+            return NotFound(new { message = lang == "EN" ? "No users found" : "لا يوجد مستخدمين" });
         var userDtos = users.Select(u => new UserDto
         {
             Id = u.Id,

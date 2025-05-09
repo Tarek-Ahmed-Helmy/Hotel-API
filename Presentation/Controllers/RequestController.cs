@@ -11,10 +11,12 @@ namespace Presentation.Controllers;
 public class RequestController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmailService _emailService;
 
-    public RequestController(IUnitOfWork unitOfWork)
+    public RequestController(IUnitOfWork unitOfWork, IEmailService emailService)
     {
         _unitOfWork = unitOfWork;
+        _emailService = emailService;
     }
 
     [HttpPost("AddRequest")]
@@ -22,7 +24,7 @@ public class RequestController : ControllerBase
     {
         if (request == null)
         {
-            return BadRequest(lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة");
+            return BadRequest(new { message =  lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
         }
         //if (!ModelState.IsValid)
         //{
@@ -59,7 +61,19 @@ public class RequestController : ControllerBase
             }
             await _unitOfWork.SaveChangesAsync();
         }
-        return Ok(lang == "EN" ? "Request Created Successfully" : "تم إنشاء الطلب بنجاح");
+
+        //string requestDetailsUrl = $"https://yourfrontenddomain.com/request-details.html?id={newRequest.Id}";
+        //await _emailService.SendAsync(new EmailDto
+        //{
+        //    To = newRequest.CustEmail,
+        //    Subject = lang == "EN" ? "Your Request Has Been Created" : "تم إنشاء طلبك",
+        //    Body = lang == "EN"
+        //        ? $"Thank you for your request. You can view the details here: <a href='{requestDetailsUrl}'>View Request</a>"
+        //        : $"شكراً لطلبك. يمكنك عرض تفاصيل الطلب من هنا: <a href='{requestDetailsUrl}'>عرض الطلب</a>",
+        //    IsHtml = true
+        //});
+
+        return Ok(new { message = lang == "EN" ? "Request Created Successfully" : "تم إنشاء الطلب بنجاح" });
     }
 
     [HttpGet("GetUserRequestDetails{id}")]
@@ -68,7 +82,7 @@ public class RequestController : ControllerBase
         var request = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == id, ["Hotel", "Room", "Status", "RequestDetails.Service", "RequestDetails.Status"]);
         if (request == null)
         {
-            return NotFound(lang == "EN" ? "Request not found" : "هذا الطلب غير موجود");
+            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         var requestDetails = new UserRequestHeaderDto
         {
@@ -93,7 +107,7 @@ public class RequestController : ControllerBase
     }
 
     [HttpPut("AddReviewToRequest")]
-    public async Task<IActionResult> AddReviewToRequest(string lang, [FromBody] RequestReviewDto review)
+    public async Task<IActionResult> AddReviewToRequest(string lang, [FromBody] UpdateRequestDto review)
     {
         if (review == null)
         {
@@ -108,7 +122,7 @@ public class RequestController : ControllerBase
         {
             return BadRequest(new { message = lang == "EN" ? "Review already exists." : "المراجعة موجودة بالفعل" });
         }
-        existingRequest.Review = review.Review;
+        existingRequest.Review = review.Text;
         await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
         await _unitOfWork.SaveChangesAsync();
         return Ok(new { message = lang == "EN" ? "Review Added Successfully" : "تم إضافة المراجعة بنجاح" });
@@ -117,10 +131,10 @@ public class RequestController : ControllerBase
     [HttpGet("GetAllRequests")]
     public async Task<IActionResult> GetAllRequests(string lang)
     {
-        var requests = (await _unitOfWork.RequestHeader.GetAllAsync()).OrderBy(r => r.UpdatedAt).ThenBy(r => r.CreatedAt);
+        var requests = (await _unitOfWork.RequestHeader.FindAllAsync(includes: ["Status"])).OrderBy(r => r.UpdatedAt).ThenBy(r => r.CreatedAt);
         if (requests == null || !requests.Any())
         {
-            return NotFound(lang == "EN" ? "Request not found" : "هذا الطلب غير موجود");
+            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         var requestDtos = requests.Select(r => new RequestHeaderDto
         {
@@ -140,7 +154,7 @@ public class RequestController : ControllerBase
         var request = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == id, ["Hotel", "Room", "Status", "RequestDetails.Service", "RequestDetails.Status"]);
         if (request == null)
         {
-            return NotFound(lang == "EN" ? "Request not found" : "هذا الطلب غير موجود");
+            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         var requestDetails = new RequestHeaderDto
         {
@@ -172,20 +186,20 @@ public class RequestController : ControllerBase
     }
 
     [HttpPut("AddReplyToRequest{id}")]
-    public async Task<IActionResult> AddReplyToRequest(string lang, int id, [FromBody] string reply)
+    public async Task<IActionResult> AddReplyToRequest(string lang, [FromBody] UpdateRequestDto reply)
     {
         if (reply == null)
         {
-            return BadRequest(lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة");
+            return BadRequest(new { message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
         }
-        var existingRequest = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == id);
+        var existingRequest = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == reply.Id);
         if (existingRequest == null)
         {
-            return NotFound(lang == "EN" ? "Request not found" : "هذا الطلب غير موجود");
+            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
-        existingRequest.Reply = reply;
+        existingRequest.Reply = reply.Text;
         await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
         await _unitOfWork.SaveChangesAsync();
-        return Ok(lang == "EN" ? "Reply Added Successfully" : "تم إضافة الرد بنجاح");
+        return Ok(new { message = lang == "EN" ? "Reply Added Successfully" : "تم إضافة الرد بنجاح" });
     }
 }

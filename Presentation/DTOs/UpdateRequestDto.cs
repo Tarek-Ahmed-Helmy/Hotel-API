@@ -1,7 +1,7 @@
 ﻿namespace Presentation.DTOs;
 
-public class RequestReviewDto
+public class UpdateRequestDto
 {
     public int Id { get; set; }
-    public string Review { get; set; }
+    public string Text { get; set; }
 }
