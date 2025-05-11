@@ -24,7 +24,7 @@ public class RequestController : ControllerBase
     {
         if (request == null)
         {
-            return BadRequest(new { message =  lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
+            return BadRequest(new { Message =  lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
         }
         //if (!ModelState.IsValid)
         //{
@@ -33,7 +33,7 @@ public class RequestController : ControllerBase
         var openingStatus = await _unitOfWork.Status.FindAsync(s => s.NameEn == "Open");
         if (openingStatus == null)
         {
-            return BadRequest(new { message = lang == "EN" ? "Opening status not found." : "لم يتم العثور على حالة فتح الطلب" });
+            return BadRequest(new { Message = lang == "EN" ? "Opening status not found." : "لم يتم العثور على حالة فتح الطلب" });
         }
         var newRequest = new RequestHeader
         {
@@ -66,7 +66,7 @@ public class RequestController : ControllerBase
             await _unitOfWork.SaveChangesAsync();
         }
 
-        return Ok(new { message = lang == "EN" ? "Request Created Successfully" : "تم إنشاء الطلب بنجاح" });
+        return Ok(new { Message = lang == "EN" ? "Request Created Successfully" : "تم إنشاء الطلب بنجاح" });
     }
 
 
@@ -87,7 +87,7 @@ public class RequestController : ControllerBase
         var request = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == id, ["Hotel", "Room", "Status", "RequestDetails.Service", "RequestDetails.Status"]);
         if (request == null)
         {
-            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
+            return NotFound(new { Message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         var requestDetails = new UserRequestHeaderDto
         {
@@ -117,21 +117,21 @@ public class RequestController : ControllerBase
     {
         if (review == null)
         {
-            return BadRequest(new { message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
+            return BadRequest(new { Message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
         }
         var existingRequest = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == review.Id);
         if (existingRequest == null)
         {
-            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
+            return NotFound(new { Message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         if (existingRequest.Review != null)
         {
-            return BadRequest(new { message = lang == "EN" ? "Review already exists." : "المراجعة موجودة بالفعل" });
+            return BadRequest(new { Message = lang == "EN" ? "Review already exists." : "المراجعة موجودة بالفعل" });
         }
         existingRequest.Review = review.Text;
         await _unitOfWork.RequestHeader.UpdateAsync(existingRequest);
         await _unitOfWork.SaveChangesAsync();
-        return Ok(new { message = lang == "EN" ? "Review Added Successfully" : "تم إضافة المراجعة بنجاح" });
+        return Ok(new { Message = lang == "EN" ? "Review Added Successfully" : "تم إضافة المراجعة بنجاح" });
     }
 
     [HttpGet("GetAllRequests")]
@@ -140,7 +140,7 @@ public class RequestController : ControllerBase
         var requests = (await _unitOfWork.RequestHeader.FindAllAsync(includes: ["Status"])).OrderBy(r => r.UpdatedAt).ThenBy(r => r.CreatedAt);
         if (requests == null || !requests.Any())
         {
-            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
+            return NotFound(new { Message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         var requestDtos = requests.Select(r => new RequestHeaderDto
         {
@@ -160,7 +160,7 @@ public class RequestController : ControllerBase
         var request = await _unitOfWork.RequestHeader.FindAsync(r => r.Id == id, ["Hotel", "Room", "Status", "RequestDetails.Service", "RequestDetails.Status"]);
         if (request == null)
         {
-            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
+            return NotFound(new { Message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         var requestDetails = new RequestHeaderDto
         {
@@ -201,12 +201,12 @@ public class RequestController : ControllerBase
     public async Task<IActionResult> UpdateRequestStatuses(string lang, [FromBody] UpdateRequestStatusDto model)
     {
         if (model == null)
-            return BadRequest(new { message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
+            return BadRequest(new { Message = lang == "EN" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
 
         var request = await _unitOfWork.RequestHeader.FindAsync(rh => rh.Id == model.RequestId);
         if (request == null)
         {
-            return NotFound(new { message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
+            return NotFound(new { Message = lang == "EN" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         request.Reply = model.Response;
         request.StatusId = model.NewStatusId;
@@ -224,7 +224,7 @@ public class RequestController : ControllerBase
         }
 
         await _unitOfWork.SaveChangesAsync();
-        return Ok(new { message = lang == "EN" ? "Reply Added Successfully" : "تم إضافة الرد بنجاح" });
+        return Ok(new { Message = lang == "EN" ? "Reply Added Successfully" : "تم إضافة الرد بنجاح" });
     }
 
 }
