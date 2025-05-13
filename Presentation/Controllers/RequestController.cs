@@ -95,6 +95,7 @@ public class RequestController : ControllerBase
             CustName = request.CustName,
             CustEmail = request.CustEmail,
             CustPhone = request.CustPhone,
+            Note = request.Note,
             Reply = request.Reply,
             SpecialRequest = request.SpecialRequest,
             HotelName = request.Hotel?.Name ?? "N/A",
