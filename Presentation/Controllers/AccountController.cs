@@ -36,10 +36,10 @@ public class AccountController : ControllerBase
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            return BadRequest(lang == "en" ? result.Errors : "عطل في الخادم، برجاء المحاولة لاحقاً");
+            return BadRequest(lang.ToLower() == "en" ? result.Errors : "عطل في الخادم، برجاء المحاولة لاحقاً");
         }
 
-        return Ok(new { message = lang == "en" ? "Registration successful" : "تم انشاء المستخدم بنجاح" });
+        return Ok(new { message = lang.ToLower() == "en" ? "Registration successful" : "تم انشاء المستخدم بنجاح" });
     }
 
     [HttpPost("Login")]
@@ -47,21 +47,21 @@ public class AccountController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
-            return Unauthorized(new { message = lang == "en" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة" });
+            return Unauthorized(new { message = lang.ToLower() == "en" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة" });
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
         if (!result.Succeeded)
-            return Unauthorized(new { message = lang == "en" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة" });
+            return Unauthorized(new { message = lang.ToLower() == "en" ? "Invalid credentials" : "اسم المستخدم او كلمة السر غير صحيحة" });
 
         // TODO: Generate JWT here and return
-        return Ok(new { message = lang == "en" ? "Login successful" : "تم تسجيل الدخول بنجاح" });
+        return Ok(new { message = lang.ToLower() == "en"  ? "Login successful" : "تم تسجيل الدخول بنجاح" });
     }
 
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout(string lang)
     {
         await _signInManager.SignOutAsync();
-        return Ok(new { message = lang == "en" ? "Logout successful" : "تم تسجيل الخروج بنجاح" });
+        return Ok(new { message = lang.ToLower() == "en" ? "Logout successful" : "تم تسجيل الخروج بنجاح" });
     }
 
     [HttpGet("GetAllUsers")]
@@ -69,7 +69,7 @@ public class AccountController : ControllerBase
     {
         var users = await _userManager.Users.ToListAsync();
         if (users == null || !users.Any())
-            return NotFound(new { message = lang == "en" ? "No users found" : "لا يوجد مستخدمين" });
+            return NotFound(new { message = lang.ToLower() == "en" ? "No users found" : "لا يوجد مستخدمين" });
         var userDtos = users.Select(u => new UserDto
         {
             Id = u.Id,
