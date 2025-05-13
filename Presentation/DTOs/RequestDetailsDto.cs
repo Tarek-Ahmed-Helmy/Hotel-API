@@ -6,6 +6,7 @@ public class RequestDetailsDto
     public string StatusName { get; set; }
     public string ServiceName { get; set; }
     public string? Note { get; set; }
+    public string? Reply { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -105,6 +105,7 @@ public class RequestController : ControllerBase
             {
                 Id = rd.Id,
                 Note = rd.Note,
+                Reply = rd.Reply,
                 CreatedAt = rd.CreatedAt,
                 UpdatedAt = rd.UpdatedAt,
                 StatusName = lang.ToLower() == "en" ? rd.Status?.NameEn ?? "N/A" : rd.Status?.NameAr ?? "غير معرف",
@@ -188,6 +189,7 @@ public class RequestController : ControllerBase
                 Note = rd.Note,
                 CreatedAt = rd.CreatedAt,
                 UpdatedAt = rd.UpdatedAt,
+                Reply = rd.Reply,
                 StatusName = lang.ToLower() == "en" ? rd.Status?.NameEn ?? "N/A" : rd.Status?.NameAr ?? "غير معرف",
                 ServiceName = lang.ToLower() == "en" ? rd.Service?.NameEn ?? "N/A" : rd.Service?.NameAr ?? "غير معرف"
             }).ToList()
@@ -230,4 +232,54 @@ public class RequestController : ControllerBase
         return Ok(new { Message = lang.ToLower() == "en" ? "Reply Added Successfully" : "تم إضافة الرد بنجاح" });
     }
 
+
+    [HttpPut("UpdateServiceRequestStatus")]
+    public async Task<IActionResult> UpdateServiceRequestStatus(string lang, [FromBody] UpdateRequestDetailsStatusDto model)
+    {
+        bool isEnglish = lang.ToLowerInvariant() == "en";
+
+        if (model == null)
+            return BadRequest(new { Message = isEnglish ? "Invalid service data." : "بيانات الخدمة غير مكتملة او غير صحيحة" });
+
+        var requestDetails = await _unitOfWork.RequestDetails.FindAsync(rd => rd.Id == model.RequestDetailsId);
+        if (requestDetails == null)
+            return NotFound(new { Message = isEnglish ? "Service not found" : "هذه الخدمة غير موجود" });
+
+        var status = await _unitOfWork.Status.FindAsync(s => isEnglish ? s.NameEn == model.Status : s.NameAr == model.Status);
+        if (status == null)
+            return BadRequest(new { Message = isEnglish ? "Invalid status" : "حالة غير صالحة" });
+
+        requestDetails.StatusId = status.Id;
+        requestDetails.Note = model.Note;
+        await _unitOfWork.RequestDetails.UpdateAsync(requestDetails);
+
+        var requestHeader = await _unitOfWork.RequestHeader.FindAsync(rh => rh.Id == requestDetails.RequestHeaderId);
+
+        // Fetch all status values at once to reduce DB hits
+        var statuses = await _unitOfWork.Status.FindAllAsync(_ => true);
+        var completedStatus = statuses.FirstOrDefault(s => s.NameEn == "Completed");
+        var rejectedStatus = statuses.FirstOrDefault(s => s.NameEn == "Rejected");
+        var inReviewStatus = statuses.FirstOrDefault(s => s.NameEn == "In Review");
+
+        if (completedStatus == null || rejectedStatus == null || inReviewStatus == null)
+            return StatusCode(500, new { Message = isEnglish ? "Server configuration error: status values missing." : "خطأ في الإعدادات: حالات الحالة غير موجودة" });
+
+        var allServices = await _unitOfWork.RequestDetails.FindAllAsync(rd => rd.RequestHeaderId == requestHeader.Id);
+        int completed = allServices.Count(s => s.StatusId == completedStatus.Id);
+        int rejected = allServices.Count(s => s.StatusId == rejectedStatus.Id);
+
+        if (completed == allServices.Count())
+            requestHeader.StatusId = completedStatus.Id;
+        else if (rejected == allServices.Count())
+            requestHeader.StatusId = rejectedStatus.Id;
+        else if (rejected + completed == allServices.Count())
+            requestHeader.StatusId = completedStatus.Id;
+        else
+            requestHeader.StatusId = inReviewStatus.Id;
+
+        await _unitOfWork.RequestHeader.UpdateAsync(requestHeader);
+        await _unitOfWork.SaveChangesAsync();
+
+        return Ok(new { Message = isEnglish ? "Service status updated successfully" : "تم تحديث حالة الطلب بنجاح" });
+    }
 }

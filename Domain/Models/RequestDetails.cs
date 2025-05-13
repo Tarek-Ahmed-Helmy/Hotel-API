@@ -7,6 +7,7 @@ public class RequestDetails
     public int RequestHeaderId { get; set; }
     public int ServiceId { get; set; }
     public string? Note { get; set; }
+    public string? Reply { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public Status? Status { get; set; }
