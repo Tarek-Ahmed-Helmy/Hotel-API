@@ -202,8 +202,8 @@ public class RequestController : ControllerBase
         return Ok(new { requestDetails, statusList });
     }
 
-    [HttpPut("UpdateRequestStatuses")]
-    public async Task<IActionResult> UpdateRequestStatuses(string lang, [FromBody] UpdateRequestStatusDto model)
+    [HttpPut("AddResponseToRequest")]
+    public async Task<IActionResult> AddResponseToRequest(string lang, [FromBody] UpdateRequestStatusDto model)
     {
         if (model == null)
             return BadRequest(new { Message = lang.ToLower() == "en" ? "Invalid request data." : "بيانات الطلب غير مكتملة او غير صحيحة" });
@@ -214,19 +214,7 @@ public class RequestController : ControllerBase
             return NotFound(new { Message = lang.ToLower() == "en" ? "Request not found" : "هذا الطلب غير موجود" });
         }
         request.Reply = model.Response;
-        request.StatusId = model.NewStatusId;
         await _unitOfWork.RequestHeader.UpdateAsync(request);
-
-        foreach (var update in model.Updates)
-        {
-            var serviceRequest = await _unitOfWork.RequestDetails.FindAsync(rd => rd.RequestHeaderId == model.RequestId && rd.Id == update.ServiceRequestId);
-            if (serviceRequest == null)
-                continue;
-
-            serviceRequest.StatusId = update.NewStatusId;
-            await _unitOfWork.RequestDetails.UpdateAsync(serviceRequest);
-
-        }
 
         await _unitOfWork.SaveChangesAsync();
         return Ok(new { Message = lang.ToLower() == "en" ? "Reply Added Successfully" : "تم إضافة الرد بنجاح" });
