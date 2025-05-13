@@ -7,7 +7,7 @@ public class CreateRequestHeaderDto
     public string CustPhone { get; set; }
     public int HotelId { get; set; }
     public int RoomId { get; set; }
-    public string? Note { get; set; }
     public string? SpecialRequest { get; set; }
-    public List<int>? ServiceIds { get; set; } = new List<int>();
+    public string? Note { get; set; }
+    public List<CreateRequestDetailsDto>? Services { get; set; }
 }
