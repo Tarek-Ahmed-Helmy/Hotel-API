@@ -238,8 +238,9 @@ public class RequestController : ControllerBase
             return BadRequest(new { Message = isEnglish ? "Invalid status" : "حالة غير صالحة" });
 
         requestDetails.StatusId = status.Id;
-        requestDetails.Note = model.Note;
+        requestDetails.Reply = model.Note;
         await _unitOfWork.RequestDetails.UpdateAsync(requestDetails);
+        await _unitOfWork.SaveChangesAsync();
 
         var requestHeader = await _unitOfWork.RequestHeader.FindAsync(rh => rh.Id == requestDetails.RequestHeaderId);
 
